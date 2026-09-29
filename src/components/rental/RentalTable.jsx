@@ -132,7 +132,7 @@ export default function RentalTable({
             Loading sales & orders...
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="text-gray-400 bg-gray-50/50 border-b border-[#00000014]">
               <tr>
 

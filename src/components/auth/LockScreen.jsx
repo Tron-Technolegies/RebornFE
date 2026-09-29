@@ -42,15 +42,15 @@ export default function LockScreen() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-gray-50 flex items-center justify-center font-sans">
-      <div className="max-w-md w-full bg-white p-10 rounded-3xl shadow-2xl border border-gray-200 text-center space-y-8 animate-in fade-in zoom-in duration-300">
-        <div className="mx-auto w-20 h-20 bg-yellow-400/20 rounded-2xl flex items-center justify-center text-black font-bold shadow-inner">
-          {password.length > 0 ? <FiUnlock size={32} /> : <FiLock size={32} />}
+    <div className="fixed inset-0 z-[9999] bg-gray-50 flex items-center justify-center font-sans p-4 overflow-y-auto">
+      <div className="max-w-md w-full bg-white p-6 sm:p-10 rounded-3xl shadow-2xl border border-gray-200 text-center space-y-6 sm:space-y-8 animate-in fade-in zoom-in duration-300 my-auto">
+        <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-yellow-400/20 rounded-2xl flex items-center justify-center text-black font-bold shadow-inner">
+          {password.length > 0 ? <FiUnlock size={28} /> : <FiLock size={28} />}
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-black text-black">Reborn Fitness</h1>
-          <p className="text-gray-500 font-medium">Application Protected</p>
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-black text-black">Reborn Fitness</h1>
+          <p className="text-gray-500 font-medium text-xs sm:text-sm">Application Protected</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -60,19 +60,19 @@ export default function LockScreen() {
               placeholder="Enter Access Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-6 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all text-center text-lg font-bold tracking-widest placeholder:tracking-normal placeholder:font-normal text-black"
+              className="w-full px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none transition-all text-center text-base sm:text-lg font-bold tracking-widest placeholder:tracking-normal placeholder:font-normal text-black"
               autoFocus
             />
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm font-bold animate-bounce">{error}</p>
+            <p className="text-red-500 text-xs sm:text-sm font-bold animate-bounce">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-yellow-400 hover:bg-[#e5c004] text-black rounded-2xl font-extrabold flex items-center justify-center gap-2 transition-all shadow-lg shadow-yellow-400/30 active:scale-95 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
+            className="w-full py-3.5 sm:py-4 bg-yellow-400 hover:bg-[#e5c004] text-black rounded-2xl font-extrabold flex items-center justify-center gap-2 transition-all shadow-lg shadow-yellow-400/30 active:scale-95 disabled:opacity-50 disabled:active:scale-100 cursor-pointer text-sm sm:text-base"
           >
             {loading ? "Verifying..." : (
               <>
@@ -81,8 +81,6 @@ export default function LockScreen() {
             )}
           </button>
         </form>
-
-
       </div>
     </div>
   );

@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Outlet } from "react-router-dom";
 
 export default function HomeLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 ml-64">
-        <Header />
-        <div className="pt-[80px] h-screen overflow-y-auto bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64">
+        <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <main className="pt-20 p-4 sm:p-6 flex-1 overflow-x-hidden">
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );
 }
+

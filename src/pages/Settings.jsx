@@ -12,7 +12,7 @@ export default function Settings() {
     <div className="space-y-6">
       <SettingsHeader />
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* SIDEBAR */}
         <SettingsSidebar active={active} setActive={setActive} />
 
