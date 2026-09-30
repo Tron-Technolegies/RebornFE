@@ -98,7 +98,7 @@ export default function CouponManagement() {
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-[#00000014]">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Coupons & Offers</h1>
           <p className="text-gray-500 text-sm">Manage discount codes for your customers</p>

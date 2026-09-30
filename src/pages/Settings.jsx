@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import SettingsHeader from "../components/settings/SettingsHeader";
-import SettingsSidebar from "../components/settings/SettingsSidebar";
-import StoreDetailsForm from "../components/settings/StoreDetailsForm";
-import BillingTaxForm from "../components/settings/BillingTaxForm";
+// import SettingsSidebar from "../components/settings/SettingsSidebar";
 import AccessSecurityForm from "../components/settings/AccessSecurityForm";
 
 export default function Settings() {
@@ -14,7 +12,7 @@ export default function Settings() {
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* SIDEBAR */}
-        <SettingsSidebar active={active} setActive={setActive} />
+        {/* <SettingsSidebar active={active} setActive={setActive} /> */}
 
         {/* CONTENT */}
         <div className="flex-1 space-y-6">

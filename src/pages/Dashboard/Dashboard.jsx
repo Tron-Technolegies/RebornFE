@@ -13,6 +13,7 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     setLoading(true);
+
     try {
       const response = await getDashboardStats();
       setData(response.data);
@@ -27,8 +28,21 @@ export default function Dashboard() {
     loadStats();
   }, []);
 
-  if (loading) return <div className="h-screen flex items-center justify-center"><Loader /></div>;
-  if (!data) return <div className="p-10 text-center text-gray-500">Failed to load dashboard data.</div>;
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="p-10 text-center text-gray-500">
+        Failed to load dashboard data.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pt-4">
@@ -37,10 +51,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <OverviewGraph history={data.revenue_history} />
-          <RecentOrders />
+
+          {/* <RecentOrders /> */}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-1">
           <QuickActions />
           <RecentSales />
         </div>

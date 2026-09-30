@@ -64,11 +64,12 @@ export default function CategoryManagement() {
 
   return (
     <div className="space-y-6 pt-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-[#00000014]">
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
           <p className="text-sm text-gray-500">Manage item categories and prefixes</p>
         </div>
+
         <button
           onClick={() => {
             setEditingCategory(null);
