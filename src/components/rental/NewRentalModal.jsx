@@ -99,29 +99,57 @@ export default function NewRentalModal({ onClose, onSave }) {
   };
 
   const handleQuantityChange = (e) => {
-    const qty = Math.max(
-      1,
-      parseInt(e.target.value) || 1
-    );
+    const value = e.target.value;
+
+    // Allow the input to be temporarily empty while typing
+    if (value === "") {
+      setQuantity("");
+      return;
+    }
+
+    const qty = Number(value);
 
     if (!selectedItem) {
       return;
     }
 
+    // Prevent invalid values
+    if (qty < 1) {
+      return;
+    }
+
+    // Prevent quantity above available stock
     if (
       selectedItem.available_stock !== undefined &&
       selectedItem.available_stock !== null &&
-      selectedItem.available_stock < qty
+      qty > Number(selectedItem.available_stock)
     ) {
       alert(
         `Only ${selectedItem.available_stock} item(s) available in stock.`
       );
+
+      // Keep the maximum allowed quantity
+      setQuantity(Number(selectedItem.available_stock));
+
+      const price = Number(selectedItem.rental_price) || 0;
+
+      setCart([
+        {
+          product: selectedItem,
+          quantity: Number(selectedItem.available_stock),
+        },
+      ]);
+
+      setForm((prev) => ({
+        ...prev,
+        rental_amount:
+          price * Number(selectedItem.available_stock),
+      }));
+
       return;
     }
 
-    const price =
-      Number(selectedItem.rental_price) || 0;
-
+    const price = Number(selectedItem.rental_price) || 0;
     const total = price * qty;
 
     setQuantity(qty);
@@ -138,6 +166,7 @@ export default function NewRentalModal({ onClose, onSave }) {
       rental_amount: total,
     }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -392,10 +421,10 @@ export default function NewRentalModal({ onClose, onSave }) {
                           value={item.id}
                           disabled={stock <= 0}
                         >
-                          {item.name} ({item.code}) - Rs.{" "}
+                          {item.name} - Rs.{" "}
                           {item.rental_price}
                           {" "}
-                          [Stock: {stock}]
+                          {/* [Stock: {stock}] */}
                         </option>
                       );
                     })}
@@ -411,10 +440,7 @@ export default function NewRentalModal({ onClose, onSave }) {
                   <input
                     type="number"
                     min="1"
-                    max={
-                      selectedItem?.available_stock ||
-                      undefined
-                    }
+                    max={selectedItem?.available_stock ?? undefined}
                     value={quantity}
                     onChange={handleQuantityChange}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none text-sm bg-white"

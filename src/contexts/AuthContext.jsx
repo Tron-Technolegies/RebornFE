@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
 import { getServerUrl, getCsrfToken } from "../api/backendApi";
 
 const AuthContext = createContext();
@@ -8,8 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // ── checkAuthStatus ───────────────────────────────────────────────────────
-  // Checks the current Django session via GET /api/auth/me/
+  // Check the current Django session
   const checkAuthStatus = useCallback(async () => {
     let attempts = 0;
     const maxAttempts = 10;
@@ -26,6 +31,7 @@ export const AuthProvider = ({ children }) => {
 
         if (res.ok) {
           const data = await res.json();
+
           if (data.authenticated && data.user?.is_superuser) {
             setUser(data.user);
             setIsAuthenticated(true);
@@ -34,7 +40,6 @@ export const AuthProvider = ({ children }) => {
           }
         }
 
-        // Response 401 or 403 means server answered and user is not an authenticated superuser
         if (res.status === 401 || res.status === 403) {
           setUser(null);
           setIsAuthenticated(false);
@@ -42,41 +47,48 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        // Any other non-ok HTTP status (e.g. 502/503 during boot)
         throw new Error(`Server returned status ${res.status}`);
       } catch (err) {
         attempts++;
+
         if (attempts >= maxAttempts) {
-          console.warn("[Auth] Backend not reachable after maximum retries:", err);
+          console.warn(
+            "[Auth] Backend not reachable after maximum retries:",
+            err
+          );
+
           setUser(null);
           setIsAuthenticated(false);
           setLoading(false);
           return;
         }
-        await new Promise((r) => setTimeout(r, 1000));
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   }, []);
 
-  // ── login ─────────────────────────────────────────────────────────────────
-  // Submits credentials to POST /api/auth/login/ using Django session auth
+  // Login using Django session authentication
   const login = async (username, password) => {
     let csrfToken = getCsrfToken();
+
     if (!csrfToken) {
       try {
         await fetch(getServerUrl("/api/auth/csrf/"), {
           method: "GET",
           credentials: "include",
         });
+
         csrfToken = getCsrfToken();
       } catch (e) {
-        // Fallback if csrf endpoint fails
+        console.warn("[Auth] Could not obtain CSRF token.");
       }
     }
 
     const headers = {
       "Content-Type": "application/json",
     };
+
     if (csrfToken) {
       headers["X-CSRFToken"] = csrfToken;
     }
@@ -85,7 +97,10 @@ export const AuthProvider = ({ children }) => {
       method: "POST",
       credentials: "include",
       headers,
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({
+        username,
+        password,
+      }),
     });
 
     const data = await res.json();
@@ -98,19 +113,20 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       setIsAuthenticated(true);
       return data;
-    } else {
-      throw new Error("Superuser access required.");
     }
+
+    throw new Error("Superuser access required.");
   };
 
-  // ── logout ────────────────────────────────────────────────────────────────
-  // Destroys the Django session via POST /api/auth/logout/
+  // Logout from Django session
   const logout = async () => {
     try {
       const csrfToken = getCsrfToken();
+
       const headers = {
         "Content-Type": "application/json",
       };
+
       if (csrfToken) {
         headers["X-CSRFToken"] = csrfToken;
       }
@@ -123,19 +139,20 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("[Auth] Logout request failed:", err);
     } finally {
-      // Clear legacy storage keys if present
-      localStorage.removeItem("app_unlocked");
-      localStorage.removeItem("app_login_timestamp");
       setUser(null);
       setIsAuthenticated(false);
+
+      // Remove legacy authentication keys if they still exist
+      localStorage.removeItem("app_unlocked");
+      localStorage.removeItem("app_login_timestamp");
     }
   };
 
-  // ── Mount effect ──────────────────────────────────────────────────────────
   useEffect(() => {
-    // Clear legacy localStorage keys to ensure clean state
+    // Remove old authentication state
     localStorage.removeItem("app_unlocked");
     localStorage.removeItem("app_login_timestamp");
+
     checkAuthStatus();
   }, [checkAuthStatus]);
 
