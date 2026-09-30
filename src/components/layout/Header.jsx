@@ -14,7 +14,8 @@ const Header = ({ onToggleSidebar }) => {
 
   const [open, setOpen] = useState(false);
   const { logout, user } = useAuth();
-  const username = user?.username || 'Admin';
+
+  const username = user?.username || "Admin";
   const userInitial = username.charAt(0).toUpperCase();
 
   const [currentDate, setCurrentDate] = useState("");
@@ -24,29 +25,21 @@ const Header = ({ onToggleSidebar }) => {
 
     if (!path) return "Dashboard";
 
-    return (
-      path.charAt(0).toUpperCase() +
-      path.slice(1)
-    );
+    return path.charAt(0).toUpperCase() + path.slice(1);
   };
 
   useEffect(() => {
-    const today =
-      new Date().toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      });
+    const today = new Date().toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
 
     setCurrentDate(today);
   }, []);
 
   const handleLogout = async () => {
     setOpen(false);
-<<<<<<< HEAD
-=======
-
->>>>>>> 239cb709c9bb3aa81177d00de87b4440a989f680
     await logout();
   };
 
@@ -100,61 +93,47 @@ const Header = ({ onToggleSidebar }) => {
             </div>
 
             <div className="hidden sm:block text-left">
-<<<<<<< HEAD
-              <p className="text-sm font-semibold leading-tight">{username}</p>
-              <p className="text-[11px] text-gray-500 leading-tight">Superuser</p>
-=======
               <p className="text-sm font-semibold leading-tight">
-                Admin
+                {username}
               </p>
 
               <p className="text-[11px] text-gray-500 leading-tight">
-                Store Admin
+                Superuser
               </p>
->>>>>>> 239cb709c9bb3aa81177d00de87b4440a989f680
-            </div >
+            </div>
 
-  <FiChevronDown
-    className={`transition-transform duration-200 text-gray-500 ${open ? "rotate-180" : ""
-      }`}
-  />
-          </div >
+            <FiChevronDown
+              className={`transition-transform duration-200 text-gray-500 ${open ? "rotate-180" : ""
+                }`}
+            />
+          </div>
 
-  {/* LOGOUT */ }
-{
-  open && (
-    <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-[#00000014] rounded-xl shadow-lg overflow-hidden py-1 z-50">
+          {/* LOGOUT */}
+          {open && (
+            <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-[#00000014] rounded-xl shadow-lg overflow-hidden py-1 z-50">
 
-      <div className="sm:hidden px-4 py-2 border-b border-gray-100 text-xs text-gray-500 font-medium">
-<<<<<<< HEAD
-  Signed in as < span className = "font-bold text-gray-800" > { username }</span >
-=======
+              <div className="sm:hidden px-4 py-2 border-b border-gray-100 text-xs text-gray-500 font-medium">
                 Signed in as{" "}
                 <span className="font-bold text-gray-800">
-                  Admin
+                  {username}
                 </span>
->>>>>>> 239cb709c9bb3aa81177d00de87b4440a989f680
-              </div >
+              </div>
 
-    <button
-<<<<<<< HEAD
-=======
+              <button
                 type="button"
->>>>>>> 239cb709c9bb3aa81177d00de87b4440a989f680
-      onClick={handleLogout}
-      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
-    >
-      <FiLogOut />
-      Logout
-    </button>
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
+              >
+                <FiLogOut />
+                Logout
+              </button>
 
-            </div >
-          )
-}
+            </div>
+          )}
 
-        </div >
-      </div >
-    </header >
+        </div>
+      </div>
+    </header>
   );
 };
 
