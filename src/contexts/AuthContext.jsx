@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { getServerUrl, getCsrfToken } from "../api/backendApi";
+import { getServerUrl, getCsrfToken, setCsrfToken } from "../api/backendApi";
 
 const AuthContext = createContext();
 
@@ -13,6 +13,26 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Fetch CSRF token explicitly from backend
+  const fetchCsrfToken = async () => {
+    try {
+      const res = await fetch(getServerUrl("/api/auth/csrf/"), {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.csrfToken) {
+          setCsrfToken(data.csrfToken);
+          return data.csrfToken;
+        }
+      }
+    } catch (err) {
+      console.warn("[Auth] Error fetching CSRF token:", err);
+    }
+    return getCsrfToken();
+  };
 
   // Check the current Django session
   const checkAuthStatus = useCallback(async () => {
@@ -29,9 +49,18 @@ export const AuthProvider = ({ children }) => {
           },
         });
 
-        if (res.ok) {
-          const data = await res.json();
+        let data = null;
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
 
+        if (data?.csrfToken) {
+          setCsrfToken(data.csrfToken);
+        }
+
+        if (res.ok && data) {
           if (data.authenticated && data.user?.is_superuser) {
             setUser(data.user);
             setIsAuthenticated(true);
@@ -73,16 +102,7 @@ export const AuthProvider = ({ children }) => {
     let csrfToken = getCsrfToken();
 
     if (!csrfToken) {
-      try {
-        await fetch(getServerUrl("/api/auth/csrf/"), {
-          method: "GET",
-          credentials: "include",
-        });
-
-        csrfToken = getCsrfToken();
-      } catch (e) {
-        console.warn("[Auth] Could not obtain CSRF token.");
-      }
+      csrfToken = await fetchCsrfToken();
     }
 
     const headers = {
@@ -103,13 +123,21 @@ export const AuthProvider = ({ children }) => {
       }),
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "Login failed");
+    let data = null;
+    try {
+      data = await res.json();
+    } catch {
+      if (res.status === 403) {
+        throw new Error("CSRF verification failed or access forbidden. Please reload and try again.");
+      }
+      throw new Error(`Server returned an error (${res.status}).`);
     }
 
-    if (data.success && data.user?.is_superuser) {
+    if (!res.ok) {
+      throw new Error(data?.error || "Login failed");
+    }
+
+    if (data?.success && data.user?.is_superuser) {
       setUser(data.user);
       setIsAuthenticated(true);
       return data;
@@ -121,7 +149,10 @@ export const AuthProvider = ({ children }) => {
   // Logout from Django session
   const logout = async () => {
     try {
-      const csrfToken = getCsrfToken();
+      let csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        csrfToken = await fetchCsrfToken();
+      }
 
       const headers = {
         "Content-Type": "application/json",

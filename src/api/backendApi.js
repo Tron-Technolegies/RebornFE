@@ -7,10 +7,18 @@ export const getServerUrl = (path = "") => {
   return `${base}${path}`;
 };
 
+let inMemoryCsrfToken = "";
+
+export const setCsrfToken = (token) => {
+  if (token) inMemoryCsrfToken = token;
+};
+
 export const getCsrfToken = () => {
-  if (typeof document === "undefined") return "";
-  const match = document.cookie.match(/csrftoken=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : "";
+  if (typeof document !== "undefined") {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    if (match && match[1]) return decodeURIComponent(match[1]);
+  }
+  return inMemoryCsrfToken || "";
 };
 
 const api = axios.create({
@@ -32,4 +40,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
