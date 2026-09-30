@@ -6,7 +6,9 @@ import { useAuth } from "../../contexts/AuthContext";
 const Header = ({ onToggleSidebar }) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const username = user?.username || "Admin";
+  const userInitial = username.charAt(0).toUpperCase();
 
   const getTitle = () => {
     const path = location.pathname.split("/")[1];
@@ -27,6 +29,11 @@ const Header = ({ onToggleSidebar }) => {
 
     setCurrentDate(today);
   }, []);
+
+  const handleLogout = async () => {
+    setOpen(false);
+    await logout();
+  };
 
   return (
     <header className="fixed top-0 left-0 md:left-64 right-0 z-30 flex items-center justify-between px-4 sm:px-6 py-3.5 bg-white border-b border-[#00000014] transition-all">
@@ -71,12 +78,12 @@ const Header = ({ onToggleSidebar }) => {
             className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 cursor-pointer rounded-lg hover:bg-gray-50"
           >
             <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center text-black font-extrabold shadow-sm border border-black/10 text-sm">
-              A
+              {userInitial}
             </div>
 
             <div className="hidden sm:block text-left">
-              <p className="text-sm font-semibold leading-tight">Admin</p>
-              <p className="text-[11px] text-gray-500 leading-tight">Store Admin</p>
+              <p className="text-sm font-semibold leading-tight">{username}</p>
+              <p className="text-[11px] text-gray-500 leading-tight">Superuser</p>
             </div>
 
             <FiChevronDown
@@ -88,10 +95,10 @@ const Header = ({ onToggleSidebar }) => {
           {open && (
             <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-[#00000014] rounded-xl shadow-lg overflow-hidden py-1 z-50">
               <div className="sm:hidden px-4 py-2 border-b border-gray-100 text-xs text-gray-500 font-medium">
-                Signed in as <span className="font-bold text-gray-800">Admin</span>
+                Signed in as <span className="font-bold text-gray-800">{username}</span>
               </div>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
               >
                 <FiLogOut />
