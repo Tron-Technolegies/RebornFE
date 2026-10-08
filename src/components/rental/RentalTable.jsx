@@ -6,7 +6,10 @@ import {
   FiChevronRight,
   FiMoreVertical,
   FiEye,
+  FiTrash2,
 } from "react-icons/fi";
+import { deleteRentalBooking } from "../../api/rentalApi";
+import ConfirmModal from "../common/ConfirmModal";
 
 export default function RentalTable({
   rentals,
@@ -19,6 +22,8 @@ export default function RentalTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const dropdownRef = useRef(null);
   const itemsPerPage = 10;
@@ -45,6 +50,41 @@ export default function RentalTable({
     PRE_BOOKED: "bg-blue-100 text-blue-600",
     RETURNED: "bg-gray-100 text-gray-500",
     CANCELLED: "bg-red-100 text-red-600",
+  };
+
+  const handleDeleteClick = (order) => {
+    setOrderToDelete(order);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!orderToDelete?.id) return;
+
+    try {
+      await deleteRentalBooking(orderToDelete.id);
+      if (setToast) {
+        setToast({
+          message: "Order deleted successfully",
+          type: "success",
+        });
+      }
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (err) {
+      console.error("Failed to delete order:", err);
+      if (setToast) {
+        setToast({
+          message:
+            err.response?.data?.error ||
+            "Failed to delete order. Please try again.",
+          type: "error",
+        });
+      }
+    } finally {
+      setShowDeleteConfirm(false);
+      setOrderToDelete(null);
+    }
   };
 
   // Search Logic
@@ -275,6 +315,18 @@ export default function RentalTable({
                               View Details
                             </button>
 
+                            {/* DELETE ORDER */}
+                            <button
+                              onClick={() => {
+                                setOpenDropdown(null);
+                                handleDeleteClick(r);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
+                            >
+                              <FiTrash2 className="inline mr-2 mb-0.5" />
+                              Delete Order
+                            </button>
+
                           </div>
                         )}
                       </td>
@@ -346,6 +398,19 @@ export default function RentalTable({
 
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteConfirm && (
+        <ConfirmModal
+          title="Delete this order?"
+          message="This action cannot be undone. Are you sure you want to delete this order?"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => {
+            setShowDeleteConfirm(false);
+            setOrderToDelete(null);
+          }}
+        />
+      )}
     </div>
   );
 }

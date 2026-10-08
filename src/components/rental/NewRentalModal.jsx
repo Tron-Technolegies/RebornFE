@@ -19,6 +19,9 @@ const emptyForm = {
 export default function NewRentalModal({ onClose, onSave }) {
   const [form, setForm] = useState(emptyForm);
   const [quantity, setQuantity] = useState(1);
+  const [useCustomPrice, setUseCustomPrice] = useState(false);
+  const [customPrice, setCustomPrice] = useState("");
+  const [priceAdjustmentReason, setPriceAdjustmentReason] = useState("");
   const [cart, setCart] = useState([]);
   const [payments] = useState([
     {
@@ -63,6 +66,8 @@ export default function NewRentalModal({ onClose, onSave }) {
 
       if (!item) {
         setCart([]);
+        setCustomPrice("");
+        setPriceAdjustmentReason("");
 
         setForm((prev) => ({
           ...prev,
@@ -73,8 +78,12 @@ export default function NewRentalModal({ onClose, onSave }) {
         return;
       }
 
-      const price =
-        Number(item.rental_price) || 0;
+      if (useCustomPrice) {
+        setCustomPrice(item.rental_price);
+      }
+
+      const regularPrice = Number(item.rental_price) || 0;
+      const effectivePrice = useCustomPrice && customPrice !== "" ? Number(customPrice) || regularPrice : regularPrice;
 
       setCart([
         {
@@ -86,7 +95,7 @@ export default function NewRentalModal({ onClose, onSave }) {
       setForm((prev) => ({
         ...prev,
         item_id: value,
-        rental_amount: price,
+        rental_amount: effectivePrice,
       }));
 
       return;
@@ -98,12 +107,54 @@ export default function NewRentalModal({ onClose, onSave }) {
     }));
   };
 
+  const handleCustomPriceToggle = (e) => {
+    const enabled = e.target.checked;
+    setUseCustomPrice(enabled);
+
+    const qty = Number(quantity) || 1;
+
+    if (enabled) {
+      const defaultPrice = selectedItem ? selectedItem.rental_price : "";
+      setCustomPrice(defaultPrice);
+      const unitPrice = Number(defaultPrice) || 0;
+      setForm((prev) => ({
+        ...prev,
+        rental_amount: unitPrice * qty,
+      }));
+    } else {
+      setCustomPrice("");
+      setPriceAdjustmentReason("");
+      const regularPrice = selectedItem ? Number(selectedItem.rental_price) || 0 : 0;
+      setForm((prev) => ({
+        ...prev,
+        rental_amount: regularPrice * qty,
+      }));
+    }
+  };
+
+  const handleCustomPriceChange = (e) => {
+    const val = e.target.value;
+    setCustomPrice(val);
+
+    const unitPrice = val === "" ? 0 : Number(val);
+    const qty = Number(quantity) || 0;
+
+    setForm((prev) => ({
+      ...prev,
+      rental_amount: unitPrice * qty,
+    }));
+  };
+
   const handleQuantityChange = (e) => {
     const value = e.target.value;
 
     // Allow the input to be temporarily empty while typing
     if (value === "") {
       setQuantity("");
+      setForm((prev) => ({
+        ...prev,
+        rental_amount: 0,
+      }));
       return;
     }
 
@@ -118,6 +169,10 @@ export default function NewRentalModal({ onClose, onSave }) {
       return;
     }
 
+    const currentUnitPrice = useCustomPrice
+      ? (customPrice === "" ? 0 : Number(customPrice) || 0)
+      : Number(selectedItem.rental_price) || 0;
+
     // Prevent quantity above available stock
     if (
       selectedItem.available_stock !== undefined &&
@@ -128,29 +183,25 @@ export default function NewRentalModal({ onClose, onSave }) {
         `Only ${selectedItem.available_stock} item(s) available in stock.`
       );
 
-      // Keep the maximum allowed quantity
-      setQuantity(Number(selectedItem.available_stock));
-
-      const price = Number(selectedItem.rental_price) || 0;
+      const maxQty = Number(selectedItem.available_stock);
+      setQuantity(maxQty);
 
       setCart([
         {
           product: selectedItem,
-          quantity: Number(selectedItem.available_stock),
+          quantity: maxQty,
         },
       ]);
 
       setForm((prev) => ({
         ...prev,
-        rental_amount:
-          price * Number(selectedItem.available_stock),
+        rental_amount: currentUnitPrice * maxQty,
       }));
 
       return;
     }
 
-    const price = Number(selectedItem.rental_price) || 0;
-    const total = price * qty;
+    const total = currentUnitPrice * qty;
 
     setQuantity(qty);
 
@@ -166,7 +217,6 @@ export default function NewRentalModal({ onClose, onSave }) {
       rental_amount: total,
     }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -192,13 +242,35 @@ export default function NewRentalModal({ onClose, onSave }) {
       return;
     }
 
+    if (useCustomPrice) {
+      if (customPrice === "" || customPrice === null || customPrice === undefined) {
+        alert("Please enter a custom sale price.");
+        return;
+      }
+
+      const numCustomPrice = Number(customPrice);
+      if (isNaN(numCustomPrice) || numCustomPrice <= 0) {
+        alert("Custom sale price must be a valid number greater than 0.");
+        return;
+      }
+    }
+
     setSaving(true);
 
     try {
+      const effectiveUnitPrice = useCustomPrice
+        ? Number(customPrice)
+        : Number(selectedItem.rental_price);
+
+      const totalAmount = effectiveUnitPrice * Number(quantity);
+
       const items = [
         {
           product_id: selectedItem.id,
-          quantity: quantity,
+          quantity: Number(quantity),
+          use_custom_price: useCustomPrice,
+          custom_price: useCustomPrice ? Number(customPrice) : null,
+          price_adjustment_reason: useCustomPrice ? priceAdjustmentReason.trim() : "",
         },
       ];
 
@@ -212,9 +284,7 @@ export default function NewRentalModal({ onClose, onSave }) {
         email: form.email,
         rental_date: todayStr,
         return_date: todayStr,
-        rental_amount: Number(
-          form.rental_amount || 0
-        ),
+        rental_amount: totalAmount,
         security_deposit: 0,
         items: items,
         payments: payments.filter(
@@ -449,6 +519,65 @@ export default function NewRentalModal({ onClose, onSave }) {
                   />
                 </div>
               </div>
+
+              {/* CUSTOM SALE PRICE SECTION */}
+              {selectedItem && (
+                <div className="pt-2 border-t border-gray-200/60 space-y-3">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={useCustomPrice}
+                      onChange={handleCustomPriceToggle}
+                      className="w-4 h-4 rounded text-yellow-500 focus:ring-yellow-400 accent-yellow-400 cursor-pointer"
+                    />
+                    <span className="text-xs font-medium text-gray-700">
+                      Use custom sale price
+                    </span>
+                  </label>
+
+                  {useCustomPrice && (
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-3">
+                      <div className="flex items-center justify-between text-xs text-gray-500 pb-2 border-b border-gray-100">
+                        <span>Regular price:</span>
+                        <span className="font-bold text-gray-700">
+                          Rs. {Number(selectedItem.rental_price || 0).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-gray-500 ml-1">
+                            Sale price per unit (Rs.)
+                          </label>
+                          <input
+                            type="number"
+                            step="any"
+                            min="0.01"
+                            value={customPrice}
+                            onChange={handleCustomPriceChange}
+                            placeholder={`e.g. ${selectedItem.rental_price}`}
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none text-sm bg-white font-semibold text-gray-800"
+                            required={useCustomPrice}
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-gray-500 ml-1">
+                            Reason for adjustment (optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={priceAdjustmentReason}
+                            onChange={(e) => setPriceAdjustmentReason(e.target.value)}
+                            placeholder="e.g. Customer negotiated price"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none text-sm bg-white text-gray-800"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
