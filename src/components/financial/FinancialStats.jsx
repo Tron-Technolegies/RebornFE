@@ -15,9 +15,9 @@ export default function FinancialStats({ refreshTrigger }) {
 
   const stats = [
     {
-      title: "Total Income",
+      title: "Total Revenue",
       value: formatCurrency(data.income),
-      sub: "All time income",
+      sub: "All time revenue",
       icon: <FiTrendingUp />,
       color: "bg-green-100 text-green-600",
     },
@@ -29,7 +29,7 @@ export default function FinancialStats({ refreshTrigger }) {
       color: "bg-red-100 text-red-500",
     },
     {
-      title: "Net Profit",
+      title: "Total Income",
       value: formatCurrency(data.profit),
       sub: data.profit >= 0 ? "Profitable" : "Operating at loss",
       icon: <FiDollarSign />,

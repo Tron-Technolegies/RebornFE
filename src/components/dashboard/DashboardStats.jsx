@@ -14,9 +14,9 @@ export default function DashboardStats({ stats: data }) {
       color: "text-green-600 bg-green-50",
     },
     {
-      title: "Active Orders / Sales",
-      value: data.rentals.active_orders,
-      extra: data.rentals.overdue_orders > 0 ? `${data.rentals.overdue_orders} pending` : null,
+      title: "Recent Orders",
+      value: data.rentals?.active_orders || data.rentals?.total_orders || 0,
+      extra: null,
       icon: <FiShoppingBag />,
       color: "text-black bg-yellow-400/20",
     },
