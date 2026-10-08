@@ -9,19 +9,20 @@ export default function RecentOrdersModal({
 
   const statusStyle = {
     Completed: "bg-green-100 text-green-600",
+    COMPLETED: "bg-green-100 text-green-600",
     Returned: "bg-green-100 text-green-600",
     InProgress: "bg-orange-100 text-orange-500",
     "In Progress": "bg-orange-100 text-orange-500",
     in_progress: "bg-orange-100 text-orange-500",
     Reserved: "bg-yellow-400/20 text-black font-semibold",
-    Active: "bg-blue-100 text-blue-500",
+    Active: "bg-green-100 text-green-600",
     ACTIVE: "bg-green-100 text-green-600",
-    Overdue: "bg-red-100 text-red-500",
-    OVERDUE: "bg-red-100 text-red-500",
+    Overdue: "bg-green-100 text-green-600",
+    OVERDUE: "bg-green-100 text-green-600",
     pending: "bg-yellow-400/20 text-black font-semibold",
     ready: "bg-green-100 text-green-600",
     delivered: "bg-gray-100 text-gray-500",
-    RETURNED: "bg-gray-100 text-gray-500",
+    RETURNED: "bg-green-100 text-green-600",
     CANCELLED: "bg-red-100 text-red-600",
   };
 
@@ -30,6 +31,10 @@ export default function RecentOrdersModal({
     in_progress: "In Progress",
     ready: "Ready",
     delivered: "Delivered",
+    OVERDUE: "Completed",
+    Overdue: "Completed",
+    ACTIVE: "Completed",
+    Active: "Completed",
   };
 
   const searchValue = search.toLowerCase().trim();

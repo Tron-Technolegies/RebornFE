@@ -22,8 +22,8 @@ export default function DashboardStats({ stats: data }) {
     },
     {
       title: "Low Stock Products",
-      value: data.accessories?.low_stock_count || 0,
-      extra: (data.accessories?.low_stock_count || 0) > 0 ? "Action required" : "Inventory healthy",
+      value: data.low_stock_count !== undefined ? data.low_stock_count : (data.accessories?.low_stock_count || 0),
+      extra: (data.low_stock_count !== undefined ? data.low_stock_count : (data.accessories?.low_stock_count || 0)) > 0 ? "Action required" : "Inventory healthy",
       icon: <FiAlertCircle />,
       color: "text-orange-600 bg-orange-50",
     },
