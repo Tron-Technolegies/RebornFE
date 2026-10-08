@@ -44,14 +44,6 @@ export default function RentalTable({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const statusStyle = {
-    OVERDUE: "bg-red-100 text-red-500",
-    ACTIVE: "bg-green-100 text-green-600",
-    PRE_BOOKED: "bg-blue-100 text-blue-600",
-    RETURNED: "bg-gray-100 text-gray-500",
-    CANCELLED: "bg-red-100 text-red-600",
-  };
-
   const handleDeleteClick = (order) => {
     setOrderToDelete(order);
     setShowDeleteConfirm(true);
@@ -196,11 +188,6 @@ export default function RentalTable({
                   SALE AMOUNT
                 </th>
 
-                {/* STATUS */}
-                <th className="text-left p-4 font-bold text-[10px] uppercase tracking-wider">
-                  STATUS
-                </th>
-
                 {/* ACTION */}
                 <th className="text-right p-4 font-bold text-[10px] uppercase tracking-wider pr-6">
                   ACTION
@@ -213,7 +200,7 @@ export default function RentalTable({
               {currentItems.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="5"
                     className="p-10 text-center text-gray-400 italic"
                   >
                     No sales or orders found
@@ -264,17 +251,6 @@ export default function RentalTable({
                             r.rental_amount || 0
                           ).toLocaleString("en-IN")}
                         </p>
-                      </td>
-
-                      {/* STATUS */}
-                      <td className="p-4">
-                        <span
-                          className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${statusStyle[r.status] ||
-                            "bg-gray-100 text-gray-500"
-                            }`}
-                        >
-                          {r.status?.replace("_", " ")}
-                        </span>
                       </td>
 
                       {/* ACTION */}

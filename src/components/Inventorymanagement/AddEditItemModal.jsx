@@ -37,6 +37,12 @@ export default function AddEditItemModal({
       rental_price: item.rental_price || "",
     });
 
+    const currentStock = item.total_stock !== undefined
+      ? Number(item.total_stock)
+      : (item.available_stock !== undefined ? Number(item.available_stock) : 1);
+
+    setStockGroups([{ qty: currentStock }]);
+
     setImagePreview(item.image_url ? getServerUrl(item.image_url) : "");
     setImageFile(null);
   }, [item]);
@@ -161,28 +167,26 @@ export default function AddEditItemModal({
               />
             </div>
 
-            {!item && (
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-gray-400 ml-1">
-                  Stock Quantity
-                </label>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-1">
+                Stock Quantity
+              </label>
 
-                <input
-                  type="number"
-                  min="1"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none transition-all font-mono"
-                  value={stockGroups[0].qty}
-                  onChange={(e) =>
-                    handleStockGroupChange(
-                      0,
-                      "qty",
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-              </div>
-            )}
+              <input
+                type="number"
+                min="0"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none transition-all font-mono"
+                value={stockGroups[0]?.qty ?? 1}
+                onChange={(e) =>
+                  handleStockGroupChange(
+                    0,
+                    "qty",
+                    e.target.value
+                  )
+                }
+                required
+              />
+            </div>
           </div>
 
           <label className="block border border-dashed border-gray-200 rounded-2xl p-4 cursor-pointer hover:bg-gray-50 transition-colors">

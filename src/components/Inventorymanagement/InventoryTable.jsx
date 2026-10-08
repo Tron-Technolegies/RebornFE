@@ -24,21 +24,9 @@ import { getServerUrl } from "../../api/backendApi";
 const PLACEHOLDER_IMAGE =
   "https://via.placeholder.com/80?text=Item";
 
-const conditionStyle = {
-  ready: "bg-green-100 text-green-600",
-  washing: "bg-orange-100 text-orange-500",
-  repair: "bg-red-100 text-red-500",
-};
-
 const statusStyle = {
   Available: "bg-green-100 text-green-600",
   Unavailable: "bg-red-100 text-red-500",
-};
-
-const conditionLabel = {
-  ready: "Ready",
-  washing: "In Washing",
-  repair: "Under Repair",
 };
 
 function normalizeItem(item, imagePreview) {
@@ -416,15 +404,11 @@ export default function InventoryTable({
                   </th>
 
                   <th className="text-left p-4 font-medium">
-                    TOTAL/AVAILABLE
+                    AVAILABLE/TOTAL
                   </th>
 
                   <th className="text-left p-4 font-medium">
                     PRICE
-                  </th>
-
-                  <th className="text-left p-4 font-medium">
-                    CONDITION
                   </th>
 
                   <th className="text-left p-4 font-medium">
@@ -476,21 +460,6 @@ export default function InventoryTable({
 
                     <td className="p-4">
                       <span
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${conditionStyle[
-                          item.condition
-                        ] ||
-                          "bg-gray-100 text-gray-600"
-                          }`}
-                      >
-                        {conditionLabel[
-                          item.condition
-                        ] ||
-                          item.condition}
-                      </span>
-                    </td>
-
-                    <td className="p-4">
-                      <span
                         className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${statusStyle[
                           item.status
                         ]
@@ -507,11 +476,12 @@ export default function InventoryTable({
                           e.stopPropagation()
                         }
                       >
-                        <FiEdit
+                        <FiEye
                           className="cursor-pointer hover:text-black transition text-gray-400"
                           onClick={() =>
-                            openEditModal(item)
+                            setSelectedItem(item)
                           }
+                          title="View Details"
                         />
 
                         <FiTrash2
@@ -519,6 +489,7 @@ export default function InventoryTable({
                           onClick={() =>
                             setDeleteTarget(item)
                           }
+                          title="Delete Product"
                         />
                       </div>
                     </td>
@@ -584,17 +555,11 @@ export default function InventoryTable({
 
                   <div className="flex gap-3">
                     <FiEye
-                      className="cursor-pointer"
+                      className="cursor-pointer text-gray-400 hover:text-black"
                       onClick={() =>
                         setSelectedItem(item)
                       }
-                    />
-
-                    <FiEdit
-                      className="cursor-pointer"
-                      onClick={() =>
-                        openEditModal(item)
-                      }
+                      title="View Details"
                     />
 
                     <FiTrash2
@@ -602,6 +567,7 @@ export default function InventoryTable({
                       onClick={() =>
                         setDeleteTarget(item)
                       }
+                      title="Delete Product"
                     />
                   </div>
                 </div>
