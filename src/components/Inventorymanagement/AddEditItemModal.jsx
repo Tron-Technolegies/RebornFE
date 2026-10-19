@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { FiUploadCloud, FiX } from "react-icons/fi";
 import { getServerUrl } from "../../api/backendApi";
@@ -34,16 +35,16 @@ export default function AddEditItemModal({
       name: item.name || "",
       category_id: item.category_id || "",
       description: item.description || "",
-      rental_price: item.rental_price || "",
+      rental_price: item.rental_price ?? "",
     });
 
-    const currentStock = item.total_stock !== undefined
-      ? Number(item.total_stock)
-      : (item.available_stock !== undefined ? Number(item.available_stock) : 1);
+    // When editing, enter only the additional quantity to add.
+    // Do not initialize the input with the existing total stock.
+    setStockGroups([{ qty: 0 }]);
 
-    setStockGroups([{ qty: currentStock }]);
-
-    setImagePreview(item.image_url ? getServerUrl(item.image_url) : "");
+    setImagePreview(
+      item.image_url ? getServerUrl(item.image_url) : ""
+    );
     setImageFile(null);
   }, [item]);
 
@@ -57,9 +58,13 @@ export default function AddEditItemModal({
   };
 
   const handleStockGroupChange = (index, field, value) => {
-    const newGroups = [...stockGroups];
-    newGroups[index][field] = value;
-    setStockGroups(newGroups);
+    setStockGroups((current) =>
+      current.map((group, i) =>
+        i === index
+          ? { ...group, [field]: value }
+          : group
+      )
+    );
   };
 
   const handleImageChange = (event) => {
@@ -74,21 +79,29 @@ export default function AddEditItemModal({
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    onSave(
-      {
-        ...form,
-        category_id: Number(form.category_id),
-        rental_price: Number(form.rental_price),
-        stock_data: stockGroups,
-        total_stock: stockGroups.reduce(
-          (acc, curr) => acc + Number(curr.qty),
-          0
-        ),
-        image: imageFile,
-      },
-      imagePreview,
-      !!imageFile
-    );
+    const quantity = Number(stockGroups[0]?.qty ?? 0);
+
+    if (!Number.isInteger(quantity) || quantity < 0) {
+      return;
+    }
+
+    const payload = {
+      ...form,
+      category_id: Number(form.category_id),
+      rental_price: Number(form.rental_price),
+      image: imageFile,
+    };
+
+    if (item) {
+      // Editing: add only the quantity entered to existing stock.
+      payload.add_stock = quantity;
+    } else {
+      // Creating: this is the initial stock quantity.
+      payload.stock_data = stockGroups;
+      payload.total_stock = quantity;
+    }
+
+    onSave(payload, imagePreview, !!imageFile);
   };
 
   return (
@@ -175,8 +188,9 @@ export default function AddEditItemModal({
               <input
                 type="number"
                 min="0"
+                step="1"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-yellow-400 outline-none transition-all font-mono"
-                value={stockGroups[0]?.qty ?? 1}
+                value={stockGroups[0]?.qty ?? 0}
                 onChange={(e) =>
                   handleStockGroupChange(
                     0,

@@ -54,17 +54,20 @@ export default function RentalTable({
 
     try {
       await deleteRentalBooking(orderToDelete.id);
+
       if (setToast) {
         setToast({
           message: "Order deleted successfully",
           type: "success",
         });
       }
+
       if (onRefresh) {
         onRefresh();
       }
     } catch (err) {
       console.error("Failed to delete order:", err);
+
       if (setToast) {
         setToast({
           message:
@@ -82,37 +85,26 @@ export default function RentalTable({
   // Search Logic
   const filteredRentals = (rentals || []).filter((r) => {
     return (
-      r.customer_name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      r.order_code
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
+      r.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.order_code?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
   // Pagination Logic
-  const totalPages = Math.ceil(
-    filteredRentals.length / itemsPerPage
-  );
+  const totalPages = Math.ceil(filteredRentals.length / itemsPerPage);
 
-  const indexOfLastItem =
-    currentPage * itemsPerPage;
-
-  const indexOfFirstItem =
-    indexOfLastItem - itemsPerPage;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
   const currentItems = filteredRentals.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
 
-  const paginate = (pageNumber) =>
-    setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="bg-white rounded-xl border border-[#00000014] overflow-visible">
-
       {/* TOP BAR */}
       <div className="flex flex-col md:flex-row justify-between gap-3 p-4 border-b border-[#00000014]">
         <div className="flex items-center gap-3 w-full md:max-w-md">
@@ -137,9 +129,7 @@ export default function RentalTable({
           >
             <FiRefreshCw
               className={
-                loading
-                  ? "animate-spin text-black"
-                  : "text-gray-400"
+                loading ? "animate-spin text-black" : "text-gray-400"
               }
             />
           </button>
@@ -157,17 +147,15 @@ export default function RentalTable({
 
       {/* TABLE */}
       <div className="overflow-x-auto min-h-[300px]">
-        {loading &&
-          (!rentals || rentals.length === 0) ? (
+        {loading && (!rentals || rentals.length === 0) ? (
           <div className="p-10 text-center text-gray-400 text-sm flex flex-col items-center gap-2">
             <FiRefreshCw className="animate-spin text-black text-xl" />
             Loading sales & orders...
           </div>
         ) : (
-          <table className="w-full min-w-[640px] text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead className="text-gray-400 bg-gray-50/50 border-b border-[#00000014]">
               <tr>
-
                 {/* ORDER ID */}
                 <th className="text-left p-4 font-bold text-[10px] uppercase tracking-wider">
                   ORDER ID
@@ -183,6 +171,11 @@ export default function RentalTable({
                   PRODUCTS
                 </th>
 
+                {/* QUANTITY SOLD */}
+                <th className="text-center p-4 font-bold text-[10px] uppercase tracking-wider">
+                  QUANTITY SOLD
+                </th>
+
                 {/* SALE AMOUNT */}
                 <th className="text-right p-4 font-bold text-[10px] uppercase tracking-wider">
                   SALE AMOUNT
@@ -192,7 +185,6 @@ export default function RentalTable({
                 <th className="text-right p-4 font-bold text-[10px] uppercase tracking-wider pr-6">
                   ACTION
                 </th>
-
               </tr>
             </thead>
 
@@ -200,7 +192,7 @@ export default function RentalTable({
               {currentItems.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="5"
+                    colSpan="6"
                     className="p-10 text-center text-gray-400 italic"
                   >
                     No sales or orders found
@@ -208,22 +200,53 @@ export default function RentalTable({
                 </tr>
               ) : (
                 currentItems.map((r) => {
-                  const itemCount = r.items
-                    ? r.items.length
-                    : 1;
+                  const items = Array.isArray(r.items) ? r.items : [];
+
+                  // Group duplicate products and add their quantities.
+                  const groupedProducts = Object.values(
+                    items.reduce((acc, item) => {
+                      const productName =
+                        item.product_name ||
+                        item.name ||
+                        item.product?.name ||
+                        item.item_name ||
+                        "Product";
+
+                      if (!acc[productName]) {
+                        acc[productName] = {
+                          name: productName,
+                          quantity: 0,
+                        };
+                      }
+
+                      acc[productName].quantity += Number(
+                        item.quantity ?? 1
+                      );
+
+                      return acc;
+                    }, {})
+                  );
+
+                  // Total units across all products in this order.
+                  const totalQuantity =
+                    items.length > 0
+                      ? groupedProducts.reduce(
+                        (total, product) =>
+                          total + product.quantity,
+                        0
+                      )
+                      : Number(r.quantity ?? 1);
 
                   return (
                     <tr
                       key={r.id}
                       className="hover:bg-gray-50/50 transition"
                     >
-
                       {/* ORDER ID */}
                       <td
                         className="p-4 font-mono text-[11px] text-black font-bold uppercase cursor-pointer hover:underline"
                         onClick={() =>
-                          onDetailClick &&
-                          onDetailClick(r)
+                          onDetailClick && onDetailClick(r)
                         }
                       >
                         {r.order_code}
@@ -236,10 +259,30 @@ export default function RentalTable({
                         </p>
                       </td>
 
-                      {/* PRODUCTS */}
+                      {/* PRODUCTS: GROUPED NAME + QUANTITY */}
                       <td className="p-4 text-center">
-                        <span className="font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-md">
-                          {itemCount}
+                        <div className="flex flex-col items-center gap-1">
+                          {groupedProducts.length > 0 ? (
+                            groupedProducts.map((product) => (
+                              <span
+                                key={product.name}
+                                className="text-xs font-medium text-gray-700 px-2 py-1 rounded-md"
+                              >
+                                {product.name} × {product.quantity}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400">
+                              No products
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* QUANTITY SOLD */}
+                      <td className="p-4 text-center">
+                        <span className="font-bold text-yellow-700 bg-yellow-50 px-2 py-0.5 rounded-md">
+                          {totalQuantity}
                         </span>
                       </td>
 
@@ -260,9 +303,7 @@ export default function RentalTable({
                             e.stopPropagation();
 
                             setOpenDropdown(
-                              openDropdown === r.id
-                                ? null
-                                : r.id
+                              openDropdown === r.id ? null : r.id
                             );
                           }}
                           className="p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-all"
@@ -275,7 +316,6 @@ export default function RentalTable({
                             ref={dropdownRef}
                             className="absolute right-8 top-10 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 text-left py-2 overflow-hidden"
                           >
-
                             {/* VIEW DETAILS */}
                             <button
                               onClick={() => {
@@ -302,11 +342,9 @@ export default function RentalTable({
                               <FiTrash2 className="inline mr-2 mb-0.5" />
                               Delete Order
                             </button>
-
                           </div>
                         )}
                       </td>
-
                     </tr>
                   );
                 })
@@ -318,60 +356,46 @@ export default function RentalTable({
 
       {/* FOOTER / PAGINATION */}
       <div className="flex justify-between items-center p-4 border-t border-[#00000014] bg-gray-50/30 mt-auto">
-
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
           {filteredRentals.length === 0
             ? "Showing 0 of 0 rentals"
-            : `Showing ${indexOfFirstItem + 1
-            } to ${Math.min(
+            : `Showing ${indexOfFirstItem + 1} to ${Math.min(
               indexOfLastItem,
               filteredRentals.length
-            )} of ${filteredRentals.length
-            } rentals`}
+            )} of ${filteredRentals.length} rentals`}
         </p>
 
         <div className="flex gap-1">
-
           <button
             disabled={currentPage === 1}
-            onClick={() =>
-              paginate(currentPage - 1)
-            }
+            onClick={() => paginate(currentPage - 1)}
             className="p-2 border border-gray-200 rounded-lg hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             <FiChevronLeft size={16} />
           </button>
 
-          {[...Array(totalPages)].map(
-            (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() =>
-                  paginate(i + 1)
-                }
-                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === i + 1
-                    ? "bg-yellow-400 text-black shadow-sm"
-                    : "text-gray-400 hover:bg-white border border-transparent hover:border-gray-200"
-                  }`}
-              >
-                {i + 1}
-              </button>
-            )
-          )}
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === i + 1
+                ? "bg-yellow-400 text-black shadow-sm"
+                : "text-gray-400 hover:bg-white border border-transparent hover:border-gray-200"
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
 
           <button
             disabled={
-              currentPage === totalPages ||
-              totalPages === 0
+              currentPage === totalPages || totalPages === 0
             }
-            onClick={() =>
-              paginate(currentPage + 1)
-            }
+            onClick={() => paginate(currentPage + 1)}
             className="p-2 border border-gray-200 rounded-lg hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             <FiChevronRight size={16} />
           </button>
-
         </div>
       </div>
 
