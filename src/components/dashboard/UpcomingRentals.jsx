@@ -3,7 +3,7 @@ import { FiCalendar, FiMessageCircle } from "react-icons/fi";
 
 export default function UpcomingRentals({ rentals = [] }) {
   const handleRemind = (item) => {
-    const message = `Hello ${item.customer}, your order for ${item.item} is ready for pickup at Reborn Fitness. Thank you!`;
+    const message = `Hello ${item.customer}, your order for ${item.item} is ready for pickup at reborn Fitness. Thank you!`;
     const whatsappUrl = `https://wa.me/${item.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };

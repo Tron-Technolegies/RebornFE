@@ -93,10 +93,10 @@ export default function AddEditItemModal({
     };
 
     if (item) {
-      // Editing: add only the quantity entered to existing stock.
+      // Send additional quantity. Backend handles stock calculation.
       payload.add_stock = quantity;
     } else {
-      // Creating: this is the initial stock quantity.
+      // Initial stock when creating a product.
       payload.stock_data = stockGroups;
       payload.total_stock = quantity;
     }
@@ -255,8 +255,7 @@ export default function AddEditItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-all"
-          >
+            className="border px-4 py-2 rounded-lg text-sm">
             Cancel
           </button>
 

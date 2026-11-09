@@ -26,10 +26,10 @@ function AppContent() {
     return (
       <div className="fixed inset-0 bg-white flex flex-col items-center justify-center font-sans z-[9999]">
         <div className="w-24 h-24 rounded-full shadow-xl flex items-center justify-center mb-6 overflow-hidden border-4 border-yellow-400">
-          <img src="/logo.png" alt="Reborn Fitness" className="w-full h-full object-cover" />
+          <img src="/logo.png" alt="reborn Fitness" className="w-full h-full object-cover" />
         </div>
         <div className="w-10 h-10 border-4 border-gray-200 border-t-yellow-400 rounded-full animate-spin mb-4"></div>
-        <h1 className="text-2xl font-black text-black tracking-tight">Reborn Fitness</h1>
+        <h1 className="text-2xl font-black text-black tracking-tight">reborn Fitness</h1>
         <p className="text-sm text-gray-500 font-medium mt-2 animate-pulse">
           Connecting to server...
         </p>

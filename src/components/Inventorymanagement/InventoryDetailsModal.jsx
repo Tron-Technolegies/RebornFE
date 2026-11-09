@@ -187,8 +187,12 @@ export default function InventoryDetailsModal({ item, onClose, onEdit }) {
                   <p className="text-lg font-black text-orange-700">{item.available_stock}</p>
                 </div>
                 <div className="bg-purple-50 p-3 rounded-xl border border-purple-100">
-                  <p className="text-[10px] text-purple-600 font-black uppercase mb-1">Times Selled</p>
-                  <p className="text-lg font-black text-purple-700">{item.times_rented ?? 0}</p>
+                  <p className="text-[10px] text-purple-600 font-black uppercase mb-1">
+                    Times Sold
+                  </p>
+                  <p className="text-lg font-black text-purple-700">
+                    {item.times_sold ?? 0}
+                  </p>
                 </div>
               </div>
             </div>

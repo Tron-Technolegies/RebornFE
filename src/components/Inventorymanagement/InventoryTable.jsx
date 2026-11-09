@@ -45,7 +45,9 @@ function normalizeItem(item, imagePreview) {
     status: item.is_available
       ? "Available"
       : "Unavailable",
-    stock: `${availableStock} / ${totalStock}`,
+    // stock: `${availableStock} / ${totalStock}`,
+    stock: `${availableStock}`,
+
     img:
       imagePreview ||
       (item.image_url
@@ -403,8 +405,12 @@ export default function InventoryTable({
                     CATEGORY
                   </th>
 
-                  <th className="text-left p-4 font-medium">
+                  {/* <th className="text-left p-4 font-medium">
                     AVAILABLE/TOTAL
+                  </th> */}
+
+                  <th className="text-left p-4 font-medium">
+                    STOCK
                   </th>
 
                   <th className="text-left p-4 font-medium">

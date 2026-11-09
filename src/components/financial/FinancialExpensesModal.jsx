@@ -78,8 +78,8 @@ export default function FinancialExpensesModal({ data = [], onClose }) {
                                         <div>
                                             <span
                                                 className={`inline-flex text-xs px-2 py-1 rounded ${d.status === "Paid"
-                                                        ? "bg-green-100 text-green-600"
-                                                        : "bg-orange-100 text-orange-500"
+                                                    ? "bg-green-100 text-green-600"
+                                                    : "bg-orange-100 text-orange-500"
                                                     }`}
                                             >
                                                 {d.status}
@@ -103,8 +103,7 @@ export default function FinancialExpensesModal({ data = [], onClose }) {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-5 py-2 bg-gray-800 text-white rounded-xl text-sm font-semibold hover:bg-gray-900 cursor-pointer"
-                    >
+                        className="border px-4 py-2 rounded-lg text-sm">
                         Close
                     </button>
                 </div>

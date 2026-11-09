@@ -129,7 +129,22 @@ export default function RentalDetailModal({
 
             <div className="bg-white rounded-xl border border-yellow-400 shadow-sm overflow-hidden">
               {order.items && order.items.length > 0 ? (
-                order.items.map((item, idx) => (
+                Object.values(
+                  order.items.reduce((acc, item) => {
+                    const key = item.product_code || item.product_name;
+
+                    if (!acc[key]) {
+                      acc[key] = {
+                        ...item,
+                        quantity: 0,
+                      };
+                    }
+
+                    acc[key].quantity += Number(item.quantity || 1);
+
+                    return acc;
+                  }, {})
+                ).map((item, idx) => (
                   <div
                     key={idx}
                     className="p-4 border-b border-gray-50 last:border-0 flex justify-between items-center hover:bg-gray-50/50 transition-colors"
@@ -137,6 +152,9 @@ export default function RentalDetailModal({
                     <div>
                       <p className="font-bold text-gray-800">
                         {item.product_name || "-"}
+                        <span className="text-yellow-600 ml-2">
+                          × {item.quantity}
+                        </span>
                       </p>
 
                       <p className="text-xs text-gray-500 mt-0.5 font-medium tracking-tight">
@@ -145,7 +163,7 @@ export default function RentalDetailModal({
                     </div>
 
                     <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                      Qty: {item.quantity || 1}
+                      Qty: {item.quantity}
                     </span>
                   </div>
                 ))

@@ -43,7 +43,7 @@ export default function LockScreen() {
           </div>
 
           <h1 className="text-2xl sm:text-[26px] font-bold text-slate-900 tracking-tight">
-            Reborn Fitness
+            reborn Fitness
           </h1>
           <p className="text-sm font-medium text-slate-500 mt-1">
             Administrator Login

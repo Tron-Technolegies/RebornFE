@@ -95,8 +95,7 @@ export default function AddExpenseModal({ onClose, onSuccess }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-[#00000014] rounded-lg text-sm cursor-pointer"
-          >
+            className="border px-4 py-2 rounded-lg text-sm">
             Cancel
           </button>
 

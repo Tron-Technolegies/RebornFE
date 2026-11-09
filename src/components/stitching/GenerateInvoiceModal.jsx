@@ -260,7 +260,7 @@ export default function GenerateInvoiceModal({ onClose }) {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-black uppercase italic tracking-widest mb-1" style={{ color: '#000000' }}>Reborn Fitness</p>
+                  <p className="text-sm font-black uppercase italic tracking-widest mb-1" style={{ color: '#000000' }}>reborn Fitness</p>
                   <p className="text-[10px] font-bold uppercase tracking-tighter" style={{ color: '#9ca3af' }}>Powering Your Fitness Journey.</p>
                 </div>
               </div>

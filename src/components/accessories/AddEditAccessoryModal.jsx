@@ -223,8 +223,7 @@ export default function AddEditAccessoryModal({ onClose, onSave, accessory = nul
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-white hover:shadow-sm transition-all text-sm"
-          >
+            className="border px-4 py-2 rounded-lg text-sm">
             Cancel
           </button>
           <button
@@ -237,7 +236,7 @@ export default function AddEditAccessoryModal({ onClose, onSave, accessory = nul
             ) : (
               <FiCheck />
             )}
-            {saving ? "Saving..." : accessory ? "Update Product" : "Add Product"}
+            {saving ? "Saving..." : accessory ? "Update " : "Add Product"}
           </button>
         </div>
       </form>

@@ -14,10 +14,9 @@ import LOGO from "../../assets/LOGO.jpeg";
 import { NavLink } from "react-router-dom";
 
 const linkClass = ({ isActive }) =>
-  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${
-    isActive
-      ? "bg-yellow-400 text-black font-bold shadow-sm"
-      : "text-gray-600 hover:bg-gray-100"
+  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition ${isActive
+    ? "bg-yellow-400 text-black font-bold shadow-sm"
+    : "text-gray-600 hover:bg-gray-100"
   }`;
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -33,16 +32,15 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Sidebar Drawer */}
       <aside
-        className={`fixed left-0 top-0 w-64 h-screen bg-white border-r border-[#00000014] flex flex-col z-50 transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed left-0 top-0 w-64 h-screen bg-white border-r border-[#00000014] flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
         {/* LOGO & Mobile Close */}
         <div className="p-4 border-b border-[#00000014] flex items-center justify-between">
           <div className="flex items-center justify-center p-1 flex-1">
             <img
               src={LOGO}
-              alt="Reborn Fitness Logo"
+              alt="reborn Fitness Logo"
               className="max-h-14 sm:max-h-16 w-auto object-contain"
             />
           </div>
